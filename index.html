@@ -1,85 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ransom Note</title>
+  <meta charset="UTF-8">
+  <title>Decryptor</title>
   <style>
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
       height: 100%;
-      background: url('https://i.imgur.com/jrdxB93.png') no-repeat center center fixed;
+      overflow: hidden;
+      background: url('https://i.imgur.com/6R8BcAZ.jpeg') no-repeat center center fixed;
       background-size: cover;
       font-family: monospace;
-      color: black;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-shadow: 0 0 10px black;
     }
 
-    .bottom-panel {
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: white;
-      border-radius: 12px;
-      width: 300px;
-      padding: 15px;
-      text-align: center;
-      box-sizing: border-box;
+    #countdown {
+      font-size: 48px;
+      margin-top: 20px;
+      z-index: 2;
     }
 
     input[type="text"] {
-      width: 100%;
-      padding: 8px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-      margin-bottom: 10px;
+      font-size: 20px;
+      padding: 10px;
+      width: 300px;
+      margin-top: 20px;
+      z-index: 2;
     }
 
-    .countdown {
-      font-size: 14px;
-      color: #333;
+    #startOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      background: transparent;
     }
   </style>
 </head>
 <body>
 
-  <div class="bottom-panel">
-    <input type="text" placeholder="Enter code here..." id="codeInput" autocomplete="off" />
-    <div class="countdown" id="countdown">Loading timer...</div>
-  </div>
+  <h1 style="z-index:2;">You have less than a minute to decrypt...</h1>
+  <input type="text" placeholder="Enter code..." />
+  <div id="countdown">60</div>
+
+  <div id="startOverlay"></div>
+
+  <audio id="creepyAudio" loop>
+    <source src="https://docs.google.com/uc?export=open&id=1dHscZjvLBZXxflEZG-Rgj5_sV6GBRaka" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
 
   <script>
-    const countdownHours = 240; // 10 days
-    const targetTime = new Date().getTime() + countdownHours * 60 * 60 * 1000;
+    let countdown = 60;
     const countdownEl = document.getElementById('countdown');
+    const overlay = document.getElementById('startOverlay');
+    const audio = document.getElementById('creepyAudio');
+    let started = false;
 
-    function updateCountdown() {
-      const now = new Date().getTime();
-      let distance = targetTime - now;
+    overlay.onclick = async function () {
+      if (started) return;
+      started = true;
 
-      if (distance < 0) {
-        countdownEl.textContent = "TIME'S UP!";
-        clearInterval(interval);
-        return;
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
       }
 
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      distance %= (1000 * 60 * 60 * 24);
-      const hours = Math.floor(distance / (1000 * 60 * 60));
-      distance %= (1000 * 60 * 60);
-      const minutes = Math.floor(distance / (1000 * 60));
-      distance %= (1000 * 60);
-      const seconds = Math.floor(distance / 1000);
+      try {
+        await audio.play();
+      } catch (e) {
+        console.log("Audio couldn't autoplay:", e);
+      }
 
-      countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s left`;
-    }
+      overlay.style.display = 'none';
 
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
+      const timer = setInterval(() => {
+        countdown--;
+        countdownEl.textContent = countdown;
+        if (countdown <= 0) {
+          clearInterval(timer);
+          countdownEl.textContent = 'Time’s up.';
+        }
+      }, 1000);
+    };
   </script>
-
 </body>
 </html>
