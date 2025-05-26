@@ -1,20 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <title>Decryptor</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ransom Note</title>
   <style>
+    html, body {
     body, html {
       margin: 0;
       padding: 0;
       height: 100%;
-      background: url('https://i.imgur.com/jrdxB93.png') no-repeat center center fixed;
+      overflow: hidden;
+      background: url('https://i.imgur.com/6R8BcAZ.jpeg') no-repeat center center fixed;
+      background: url('https://i.imgur.com/6R8BcAZ.png') no-repeat center center fixed;
       background-size: cover;
       font-family: monospace;
+      color: white;
+      text-shadow: 0 0 10px black;
       color: black;
     }
 
+    #container {
+      position: absolute;
+      bottom: 30px;
+      width: 100%;
     .bottom-panel {
       position: fixed;
       bottom: 10px;
@@ -25,10 +36,19 @@
       width: 300px;
       padding: 15px;
       text-align: center;
+      z-index: 2;
       box-sizing: border-box;
     }
 
     input[type="text"] {
+      font-size: 20px;
+      padding: 10px;
+      width: 80%;
+      max-width: 300px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: 1px solid white;
+      border-radius: 5px;
       width: 100%;
       padding: 8px;
       font-size: 16px;
@@ -38,6 +58,19 @@
       margin-bottom: 10px;
     }
 
+    #countdown {
+      font-size: 36px;
+      font-weight: bold;
+    }
+
+    #startOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: transparent;
+      z-index: 3;
     .countdown {
       font-size: 14px;
       color: #333;
@@ -46,37 +79,71 @@
 </head>
 <body>
 
+  <div id="container">
+    <input type="text" placeholder="Enter code..." />
+    <div id="countdown">60</div>
   <div class="bottom-panel">
     <input type="text" placeholder="Enter code here..." id="codeInput" autocomplete="off" />
     <div class="countdown" id="countdown">Loading timer...</div>
   </div>
 
-  <script>
-    const countdownHours = 240; // 10 days
-    const targetTime = new Date().getTime() + countdownHours * 60 * 60 * 1000;
-    const countdownEl = document.getElementById('countdown');
+  <div id="startOverlay"></div>
 
+  <audio id="creepyAudio" loop>
+    <source src="https://docs.google.com/uc?export=open&id=1dHscZjvLBZXxflEZG-Rgj5_sV6GBRaka" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    let countdown = 60;
+    // 1 minute countdown in milliseconds
+    const countdownDuration = 60 * 1000;
+    const targetTime = new Date().getTime() + countdownDuration;
+    const countdownEl = document.getElementById('countdown');
+    const overlay = document.getElementById('startOverlay');
+    const audio = document.getElementById('creepyAudio');
+    let started = false;
+
+    overlay.onclick = async function () {
+      if (started) return;
+      started = true;
     function updateCountdown() {
       const now = new Date().getTime();
       let distance = targetTime - now;
 
+      // Attempt fullscreen
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
       if (distance < 0) {
         countdownEl.textContent = "TIME'S UP!";
         clearInterval(interval);
         return;
       }
 
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      distance %= (1000 * 60 * 60 * 24);
-      const hours = Math.floor(distance / (1000 * 60 * 60));
-      distance %= (1000 * 60 * 60);
+      // Try to play audio
+      try {
+        await audio.play();
+      } catch (e) {
+        console.log("Audio play failed:", e);
+      }
       const minutes = Math.floor(distance / (1000 * 60));
-      distance %= (1000 * 60);
-      const seconds = Math.floor(distance / 1000);
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-      countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s left`;
+      // Hide overlay to allow interaction
+      overlay.style.display = 'none';
+      countdownEl.textContent = `${minutes}m ${seconds}s left`;
     }
 
+      // Countdown logic
+      const timer = setInterval(() => {
+        countdown--;
+        countdownEl.textContent = countdown;
+        if (countdown <= 0) {
+          clearInterval(timer);
+          countdownEl.textContent = 'Time’s up.';
+        }
+      }, 1000);
+    };
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
   </script>
