@@ -18,7 +18,7 @@
 
     #container {
       position: absolute;
-      bottom: 60px;
+      bottom: 30px;
       width: 100%;
       text-align: center;
       z-index: 2;
@@ -29,11 +29,11 @@
       padding: 10px;
       width: 80%;
       max-width: 300px;
-      margin-bottom: 15px;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       color: white;
       border: 1px solid white;
       border-radius: 5px;
+      margin-bottom: 10px;
     }
 
     #countdown {
@@ -86,13 +86,13 @@
       try {
         await audio.play();
       } catch (e) {
-        console.log("Audio couldn't autoplay:", e);
+        console.log("Audio play failed:", e);
       }
 
-      // Hide overlay so user can type
+      // Hide overlay to allow interaction
       overlay.style.display = 'none';
 
-      // Start countdown
+      // Countdown logic
       const timer = setInterval(() => {
         countdown--;
         countdownEl.textContent = countdown;
