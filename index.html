@@ -13,25 +13,32 @@
       background-size: cover;
       font-family: monospace;
       color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
       text-shadow: 0 0 10px black;
     }
 
-    #countdown {
-      font-size: 48px;
-      margin-top: 20px;
+    #container {
+      position: absolute;
+      bottom: 60px;
+      width: 100%;
+      text-align: center;
       z-index: 2;
     }
 
     input[type="text"] {
       font-size: 20px;
       padding: 10px;
-      width: 300px;
-      margin-top: 20px;
-      z-index: 2;
+      width: 80%;
+      max-width: 300px;
+      margin-bottom: 15px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: 1px solid white;
+      border-radius: 5px;
+    }
+
+    #countdown {
+      font-size: 36px;
+      font-weight: bold;
     }
 
     #startOverlay {
@@ -40,16 +47,17 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 1;
       background: transparent;
+      z-index: 3;
     }
   </style>
 </head>
 <body>
 
-  <h1 style="z-index:2;">You have less than a minute to decrypt...</h1>
-  <input type="text" placeholder="Enter code..." />
-  <div id="countdown">60</div>
+  <div id="container">
+    <input type="text" placeholder="Enter code..." />
+    <div id="countdown">60</div>
+  </div>
 
   <div id="startOverlay"></div>
 
@@ -69,18 +77,22 @@
       if (started) return;
       started = true;
 
+      // Attempt fullscreen
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(() => {});
       }
 
+      // Try to play audio
       try {
         await audio.play();
       } catch (e) {
         console.log("Audio couldn't autoplay:", e);
       }
 
+      // Hide overlay so user can type
       overlay.style.display = 'none';
 
+      // Start countdown
       const timer = setInterval(() => {
         countdown--;
         countdownEl.textContent = countdown;
